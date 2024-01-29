@@ -7,6 +7,10 @@ use App\Models\User;
 use App\Models\Offer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Notifications\SendRequest;
+use Illuminate\Support\Facades\Notification;
+use App\Models\Request as ModelsRequest;
+
 
 class OffersController extends Controller
 {
@@ -48,6 +52,19 @@ class OffersController extends Controller
         
     
 
+        //send notification to users
+        $dataRequest = ModelsRequest::create([
+            'user_id' => auth()->user()->id, //when integrate we will replace it with auth->user which logged in 
+            'title' => "NEW OFFER",
+            'body' => $request->offerText
+        ]);
+
+        $user_send = auth()->user()->name; //when integrate we will replace it with auth->user->name which logged in 
+          //here we send a notfication to only users
+        //   $users = User::whereHas('role', function ($query) {
+        //     $query->where('role', 'user');
+        // })->get();
+        Notification::send($users, new SendRequest($dataRequest->id, $user_send, $dataRequest->title));
 
         return response()->json(['message' => 'Offer sent successfully', 'offer' => $offers], 201);
     }
@@ -85,6 +102,21 @@ class OffersController extends Controller
         ]);
 
         $offer->save();
+        
+        //send notification to users
+        $dataRequest = ModelsRequest::create([
+            'user_id' => auth()->user()->id, //when integrate we will replace it with auth->user which logged in 
+            'title' => "NEW OFFER",
+            'body' => $request->offerText
+        ]);
+
+        $user_send = auth()->user()->name; //when integrate we will replace it with auth->user->name which logged in 
+          //here we send a notfication to only users
+          $users = User::whereHas('role', function ($query) {
+            $query->where('role', 'user');
+        })->get();
+        Notification::send($users, new SendRequest($dataRequest->id, $user_send, $dataRequest->title));
+
 
         return response()->json(['message' => 'Offer sent successfully', 'offer' => $offer], 201);
     }

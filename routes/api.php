@@ -40,7 +40,10 @@ Route::middleware(['auth:sanctum', 'check_admin', 'check_block_status'])->group(
     Route::post('/send-custom-offer', [OffersController::class, 'sendCustomOffer']);
 
     Route::post('/make-offer', [OffersController::class, 'makeOffer']);
-
+    Route::get('/get-offers', [OffersController::class, 'getOffers']);
+    Route::get('/get-special-offers', [OffersController::class, 'getSpecialOffers']);
+    
+    
     Route::get('/bills', [BillController::class, 'index']);
     Route::get('/bills/{id}', [BillController::class, 'show']);
 

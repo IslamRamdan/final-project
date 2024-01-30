@@ -51,20 +51,20 @@ class OffersController extends Controller
         }
         
     
+    //  //send notification to users
+    //  $dataRequest = ModelsRequest::create([
+    //     'user_id' => auth()->user()->id, //when integrate we will replace it with auth->user which logged in 
+    //     'title' => "NEW OFFER",
+    //     'body' => $request->offerText
+    // ]);
 
-        //send notification to users
-        $dataRequest = ModelsRequest::create([
-            'user_id' => auth()->user()->id, //when integrate we will replace it with auth->user which logged in 
-            'title' => "NEW OFFER",
-            'body' => $request->offerText
-        ]);
+    // $user_send = auth()->user()->name; //when integrate we will replace it with auth->user->name which logged in 
+    //   //here we send a notfication to only users
+    // //   $users = User::whereHas('role', function ($query) {
+    // //     $query->where('role', 'user');
+    // // })->get();
+    // Notification::send($users, new SendRequest($dataRequest->id, $user_send, $dataRequest->title));
 
-        $user_send = auth()->user()->name; //when integrate we will replace it with auth->user->name which logged in 
-          //here we send a notfication to only users
-        //   $users = User::whereHas('role', function ($query) {
-        //     $query->where('role', 'user');
-        // })->get();
-        Notification::send($users, new SendRequest($dataRequest->id, $user_send, $dataRequest->title));
 
         return response()->json(['message' => 'Offer sent successfully', 'offer' => $offers], 201);
     }
@@ -102,22 +102,54 @@ class OffersController extends Controller
         ]);
 
         $offer->save();
-        
-        //send notification to users
-        $dataRequest = ModelsRequest::create([
-            'user_id' => auth()->user()->id, //when integrate we will replace it with auth->user which logged in 
-            'title' => "NEW OFFER",
-            'body' => $request->offerText
-        ]);
 
-        $user_send = auth()->user()->name; //when integrate we will replace it with auth->user->name which logged in 
-          //here we send a notfication to only users
-          $users = User::whereHas('role', function ($query) {
-            $query->where('role', 'user');
-        })->get();
-        Notification::send($users, new SendRequest($dataRequest->id, $user_send, $dataRequest->title));
+            
+    //  //send notification to users
+    //  $dataRequest = ModelsRequest::create([
+    //     'user_id' => auth()->user()->id, //when integrate we will replace it with auth->user which logged in 
+    //     'title' => "NEW OFFER",
+    //     'body' => $request->offerText
+    // ]);
+
+    // $user_send = auth()->user()->name; //when integrate we will replace it with auth->user->name which logged in 
+    //   //here we send a notfication to only users
+    //   $users = User::whereHas('role', function ($query) {
+    //     $query->where('role', 'user');
+    // })->get();
+    // Notification::send($users, new SendRequest($dataRequest->id, $user_send, $dataRequest->title));
+
 
 
         return response()->json(['message' => 'Offer sent successfully', 'offer' => $offer], 201);
     }
+    public function getOffers()
+    {
+       
+        $offers = Offer::whereNull('user_id')->get();
+    
+        
+        if ($offers->isEmpty()) {
+            return response()->json(['message' => 'No offers found where user_id is null', 'offers' => []], 404);
+        }
+    
+        return response()->json(['message' => 'Offers with user_id null retrieved successfully', 'offers' => $offers], 200);
+    }
+
+    public function getSpecialOffers()
+{
+    
+    $userId = auth()->user()->id;
+
+    $specialOffers = Offer::where('user_id', $userId)->get();
+
+ 
+    if ($specialOffers->isEmpty()) {
+        return response()->json(['message' => 'No special offers found for the logged-in user', 'offers' => []], 404);
+    }
+
+   
+    return response()->json(['message' => 'Special offers retrieved successfully', 'offers' => $specialOffers], 200);
+}
+
+
 }

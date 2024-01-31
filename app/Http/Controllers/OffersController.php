@@ -71,6 +71,25 @@ class OffersController extends Controller
 
 
 
+
+    public function updateCustomOffer(Request $request, $offerId)
+{
+    $purchaseValue = $request->input('purchase_value');
+    $offerText = $request->input('offer_text');
+
+    // Find the offer by ID
+    $offer = Offer::findOrFail($offerId);
+
+    // Update the offer with new data
+    $offer->offer_text = $offerText;
+    $offer->purchase_value =$purchaseValue;
+
+    
+    $offer->save();
+
+    return response()->json(['message' => 'Offer updated successfully', 'offer' => $offer], 200);
+}
+
     public function makeOffer(Request $request){
 
         $offerText = $request->input('offer_text');
@@ -150,6 +169,43 @@ class OffersController extends Controller
    
     return response()->json(['message' => 'Special offers retrieved successfully', 'offers' => $specialOffers], 200);
 }
+
+
+public function updateOffer(Request $request, $offerId)
+{
+    $newOfferText = $request->input('new_offer_text');
+    $currentPrice = $request->input('current_price');
+    $previousPrice = $request->input('previous_price');
+    
+    
+    $offer = Offer::find($offerId);
+
+    if (!$offer) {
+        return response()->json(['message' => 'Offer not found', 'offer' => null], 404);
+    }
+
+    $offer->offer_text = $newOfferText;
+    $offer->current_price =$currentPrice;
+    $offer->previous_price =$previousPrice;
+    $offer->save();
+
+    return response()->json(['message' => 'Offer text updated successfully', 'offer' => $offer], 200);
+}
+
+public function deleteOffer($offerId)
+{
+    $offer = Offer::find($offerId);
+
+    if (!$offer) {
+        return response()->json(['message' => 'Offer not found', 'offer' => null], 404);
+    }
+
+    $offer->delete();
+
+    return response()->json(['message' => 'Offer deleted successfully', 'offer' => $offer], 200);
+}
+
+
 
 
 }

@@ -43,6 +43,12 @@ Route::middleware(['auth:sanctum', 'check_admin', 'check_block_status'])->group(
     Route::get('/get-offers', [OffersController::class, 'getOffers']);
     Route::get('/get-special-offers', [OffersController::class, 'getSpecialOffers']);
     
+    Route::put('/update-offer/{offerId}', [OffersController::class, 'updateOffer']);
+Route::put('/update-custom-offer/{offerId}', [OffersController::class, 'updateCustomOffer']);
+
+Route::delete('/delete-offer/{offerId}',[OffersController::class, 'deleteOffer']);
+
+
     
     Route::get('/bills', [BillController::class, 'index']);
     Route::get('/bills/{id}', [BillController::class, 'show']);

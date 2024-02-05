@@ -54,15 +54,15 @@ class UserAuth extends Controller
 
         // send notification
         $dataRequest = ModelsRequest::create([
-            'user_id' => auth()->user()->id,
+            'user_id' => $user->id,
             'title' => "New subscription",
             'body' => 'New account was created by'
         ]);
-        $user_send = auth()->user()->name;
+        // $user_send = auth()->user()->name;
         $admins = User::whereHas('role', function ($query) {
             $query->where('role', 'admin');
         })->get();
-        Notification::send($admins, new SendRequest($dataRequest->id, $user_send, $dataRequest->title));
+        Notification::send($admins, new SendRequest($dataRequest->id, $user->name, $dataRequest->title));
 
         return response()->json([
             'success' => true,

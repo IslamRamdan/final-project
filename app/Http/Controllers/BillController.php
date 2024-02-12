@@ -26,38 +26,42 @@ class BillController extends Controller
 
     public function createBill(Request $request)
     {
-        // Validate the request data
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-        ]);
+        try {
+            $products_requests_id = $request->input('products_requests_id');
 
-        // Get user details
-        $user = User::findOrFail($request->user_id);
-
-        // Get all items bought by the user with their prices
-        $boughtItems = ProductsRequests::where('user_id', $user->id)
-            ->with('item') // Assuming a relationship between ProductsRequests and Item models
-            ->get();
-
-        // If there are no bought items, handle the case accordingly
-        if ($boughtItems->isEmpty()) {
-            return response()->json(['message' => 'No bought items found for the user.'], 404);
+        
+            // Get products request details
+            $productsRequest = ProductsRequests::findOrFail($request->products_requests_id);
+    
+            // Get all items bought with their prices
+            $boughtItems = ProductsRequests::where('id', $productsRequest->id)
+                ->with('item') // Assuming a relationship between ProductsRequests and Item models
+                ->get();
+    
+            if ($boughtItems->isEmpty()) {
+                return response()->json(['message' => 'No bought items found for the user.'], 404);
+            }
+    
+            // Calculate total price
+            $totalPrice = $boughtItems->sum(function ($item) {
+                return $item->item->price * $item->count;
+            });
+    
+            // Create a new bill
+            $bill = Bill::create([
+                'user_id' => $productsRequest->user_id,
+                'total_price' => $totalPrice,
+                'bought_items' => $boughtItems->pluck('item.name')->toArray(),
+            ]);
+    
+            return response()->json(['message' => 'Bill created successfully', 'bill' => $bill]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            return response()->json(['message' => 'No request found'], 404);
+        } catch (\Exception $exception) {
+            return response()->json(['message' => 'An error occurred while processing the request'], 500);
         }
-
-        // Calculate total price
-        $totalPrice = $boughtItems->sum(function ($item) {
-            return $item->item->price * $item->count;
-        });
-
-        // Create a new bill
-        $bill = Bill::create([
-            'user_id' => $user->id,
-            'total_price' => $totalPrice,
-            'bought_items' => $boughtItems->pluck('item.name')->toArray(),
-        ]);
-
-        return response()->json(['message' => 'Bill created successfully', 'bill' => $bill]);
     }
+    
     public function getTotalIncome($month)
     {
         // Validate the month input (optional)

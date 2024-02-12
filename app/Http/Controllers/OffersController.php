@@ -144,7 +144,8 @@ class OffersController extends Controller
     public function getOffers()
     {
        
-        $offers = Offer::whereNull('user_id')->get();
+        // $offers = Offer::whereNull('user_id')->get();
+        $offers = Offer::with('item')->whereNull('user_id')->get();
     
         
         if ($offers->isEmpty()) {
@@ -153,6 +154,7 @@ class OffersController extends Controller
     
         return response()->json(['message' => 'Offers with user_id null retrieved successfully', 'offers' => $offers], 200);
     }
+
 
     public function getSpecialOffers()
 {
